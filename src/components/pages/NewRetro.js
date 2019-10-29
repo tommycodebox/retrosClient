@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
+import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
 import Sidebar from '../layout/Sidebar';
+import Header from '../layout/Header';
+import PropTypes from 'prop-types';
+import { create } from '../../actions/retro';
 
-const NewRetro = () => {
+const NewRetro = ({ auth, create }) => {
   const [retro, setRetro] = useState({
     name: '',
     type: '',
@@ -75,44 +80,32 @@ const NewRetro = () => {
     setRetro({ ...retro, deltas: updated });
   };
 
-  const menuHandler = e => {
-    const sidebar = document.querySelector('.Sidebar');
-    const main = document.querySelector('.Main');
-
-    e.target.classList.toggle('active');
-    setTimeout(() => {
-      sidebar.classList.toggle('active');
-      main.classList.toggle('active');
-    }, 300);
+  const inputHandler = e => {
+    if (e.target.value.length > 0) {
+      e.target.classList.add('filled');
+    } else {
+      e.target.classList.remove('filled');
+    }
+    setRetro({ ...retro, [e.target.name]: e.target.value });
   };
 
-  const inputHandler = e => {
-    setRetro({ ...retro, [e.target.name]: e.target.value });
+  const submitRetro = () => {
+    create(retro);
+    setRetro({
+      name: '',
+      type: '',
+      todos: [''],
+      awesomes: [''],
+      deltas: ['']
+    });
+    return <Redirect to='/' />;
   };
 
   return (
     <div className='New'>
       <Sidebar />
       <div className='Main'>
-        <header className='new'>
-          <a href='#' className='create save'>
-            <i className='fas fa-save fa-lg'></i>
-            <span></span>
-          </a>
-          <div className='title'>New retro</div>
-          <div className='profile'>
-            <div>
-              Tom F.
-              <span></span>
-            </div>
-            <i className='fas fa-id-badge fa-2x'></i>
-          </div>
-          <div className='hamburger' onClick={menuHandler}>
-            <span className='line'></span>
-            <span className='line'></span>
-            <span className='line'></span>
-          </div>
-        </header>
+        <Header title='New retro' page='New' auth={auth} create={submitRetro} />
         <section className='board'>
           <div className='card'>
             <div className='title'>Main info</div>
@@ -234,4 +227,16 @@ const NewRetro = () => {
   );
 };
 
-export default NewRetro;
+NewRetro.propTypes = {
+  auth: PropTypes.object.isRequired,
+  create: PropTypes.func.isRequired
+};
+
+const mapStateToProps = state => ({
+  auth: state.auth
+});
+
+export default connect(
+  mapStateToProps,
+  { create }
+)(NewRetro);

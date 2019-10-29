@@ -1,73 +1,90 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Sidebar from '../layout/Sidebar';
 import { setAlert } from '../../actions/alert';
+import { getAll, getLatest, toggle } from '../../actions/retro';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import Header from '../layout/Header';
+import Moment from 'react-moment';
+import uuid from 'uuid';
+import loader from '../../assets/img/loader.gif';
+import lineLoader from '../../assets/img/lineLoader.gif';
 
-const Dashboard = ({ setAlert }) => {
-  const menuHandler = e => {
-    const sidebar = document.querySelector('.Sidebar');
-    const main = document.querySelector('.Main');
+const Dashboard = ({
+  setAlert,
+  auth,
+  getAll,
+  getLatest,
+  toggle,
+  retro: { all, loading, latest }
+}) => {
+  useEffect(() => {
+    getAll();
+    getLatest();
+  }, []);
 
-    e.target.classNameList.toggle('active');
-    setTimeout(() => {
-      sidebar.classNameList.toggle('active');
-      main.classNameList.toggle('active');
-    }, 300);
+  const toggleTodo = (retro, todo) => {
+    toggle(retro, todo);
   };
 
   return (
     <div className='Dashboard'>
       <Sidebar />
       <div className='Main'>
-        <header>
-          <a
-            href='#'
-            className='create'
-            onClick={() => setAlert('cool', 'danger')}
-          >
-            <span>New</span>
-          </a>
-          <div className='title'>Dashboard</div>
-          <div className='profile'>
-            <div>
-              Tom F.
-              <span></span>
-            </div>
-            <i className='fas fa-id-badge fa-2x'></i>
-          </div>
-          <div className='hamburger' onClick={menuHandler}>
-            <span className='line'></span>
-            <span className='line'></span>
-            <span className='line'></span>
-          </div>
-        </header>
+        <Header title='Dashboard' page='Dashboard' auth={auth} />
         <section className='board'>
           <div className='latest card'>
             <div className='title'>
               Latest Retro
-              <a href='#' className='more'>
+              <Link
+                to={!loading && latest && '/retro/' + latest._id}
+                className='more'
+              >
                 >
-              </a>
+              </Link>
             </div>
             <div className='area'>
-              <div className='area-title'>Friday retro</div>
+              {!loading && latest ? (
+                <div className='area-title'>{latest.name}</div>
+              ) : (
+                <div className='area-title'>
+                  {latest ? <img src={lineLoader} width={50} /> : 'n/a'}
+                </div>
+              )}
               <div className='awesomes'>
                 A<span className='hide'>wesomes</span>
-                <span className='count'>5</span>
+                <span className='count'>
+                  {!loading && latest ? latest.awesomes.length : '-'}
+                </span>
               </div>
               <div className='deltas'>
                 D<span className='hide'>eltas</span>
-                <span className='count'>5</span>
+                <span className='count'>
+                  {!loading && latest ? latest.deltas.length : '-'}
+                </span>
               </div>
               <div className='todos-title'>Todos</div>
               <div className='todos'>
                 <ul className='list'>
-                  <li>Respect the timer</li>
-                  <li>Respect the timer</li>
-                  <li>Respect the timer</li>
-                  <li>Respect the timer</li>
-                  <li>Respect the timer</li>
+                  {!loading && latest ? (
+                    latest.todos.slice(0, 4).map(todo => <li>{todo.name}</li>)
+                  ) : (
+                    <li>
+                      {latest ? (
+                        <img
+                          width={30}
+                          src={loader}
+                          style={{
+                            marginTop: 'calc(50% - 15px)',
+                            marginLeft: 'calc(50% - 15px)'
+                          }}
+                        />
+                      ) : (
+                        'Latest retro todos will display here'
+                      )}
+                    </li>
+                  )}
                 </ul>
               </div>
             </div>
@@ -75,132 +92,68 @@ const Dashboard = ({ setAlert }) => {
           <div className='todos card'>
             <div className='title'>Todos</div>
             <div className='list'>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
+              {!loading && all ? (
+                all.reverse().map(retro =>
+                  retro.todos.map(todo => (
+                    <div
+                      className='item'
+                      key={todo._id}
+                      onClick={() => toggleTodo(retro._id, todo._id)}
+                    >
+                      <div
+                        className='date'
+                        style={{ color: todo.isDone ? 'limegreen' : 'crimson' }}
+                      >
+                        {todo.isDone ? '✓' : '✗'}
+                      </div>
+                      <div className='name'>{todo.name}</div>
+                    </div>
+                  ))
+                )
+              ) : (
+                <img width={40} src={loader} style={{ marginTop: 60 }} />
+              )}
             </div>
           </div>
 
           <div className='awesomes card'>
             <div className='title'>Awesomes</div>
             <div className='list'>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
+              {!loading && all ? (
+                all.reverse().map(retro =>
+                  retro.awesomes.map(awesome => (
+                    <Link to={'/' + retro._id} className='item' key={uuid.v4()}>
+                      <div className='date'>
+                        <Moment format='DD.MM'>{retro.date}</Moment>
+                      </div>
+                      <div className='name'>{awesome}</div>
+                      <div className='arrow'>></div>
+                    </Link>
+                  ))
+                )
+              ) : (
+                <img width={40} src={loader} style={{ marginTop: 60 }} />
+              )}
             </div>
           </div>
           <div className='deltas card'>
             <div className='title'>Deltas</div>
             <div className='list'>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
-              <a href='#' className='item'>
-                <div className='date'>20.04.19</div>
-                <div className='name'>Friday retro</div>
-                <div className='arrow'>></div>
-              </a>
+              {!loading && all ? (
+                all.reverse().map(retro =>
+                  retro.deltas.map(delta => (
+                    <Link to={'/' + retro._id} className='item' key={uuid.v4()}>
+                      <div className='date'>
+                        <Moment format='DD.MM'>{retro.date}</Moment>
+                      </div>
+                      <div className='name'>{delta}</div>
+                      <div className='arrow'>></div>
+                    </Link>
+                  ))
+                )
+              ) : (
+                <img width={40} src={loader} style={{ marginTop: 60 }} />
+              )}
             </div>
           </div>
         </section>
@@ -210,10 +163,20 @@ const Dashboard = ({ setAlert }) => {
 };
 
 Dashboard.propTypes = {
-  setAlert: PropTypes.func.isRequired
+  setAlert: PropTypes.func.isRequired,
+  getAll: PropTypes.func.isRequired,
+  getLatest: PropTypes.func.isRequired,
+  toggle: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired,
+  retro: PropTypes.object.isRequired
 };
 
+const mapStateToProps = state => ({
+  auth: state.auth,
+  retro: state.retro
+});
+
 export default connect(
-  null,
-  { setAlert }
+  mapStateToProps,
+  { setAlert, getAll, getLatest, toggle }
 )(Dashboard);

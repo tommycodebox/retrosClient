@@ -1,6 +1,14 @@
 import React from 'react';
+import { Redirect, Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import { logout } from '../../actions/auth';
 
-const Sidebar = () => {
+const Sidebar = ({ logout, auth: { isAuth, loading } }) => {
+  // if (!loading && !isAuth) {
+  //   return <Redirect to='/welcome' />;
+  // }
+
   return (
     <div className='Sidebar'>
       <header>
@@ -24,25 +32,40 @@ const Sidebar = () => {
         </div>
       </header>
       <div className='menu'>
-        <a href='#' className='dashboard active'>
+        <Link to='/' className='dashboard active'>
           <i className='fas fa-home fa-lg'></i>
           <div className='title'>Dashboard</div>
-        </a>
+        </Link>
         <a href='#' className='mobs'>
           <i className='fas fa-users fa-lg'></i>
-          <div className='title'>Mobs</div>
+          <div className='title'>All retros</div>
         </a>
         <a href='#' className='dashboard'>
           <i className='fas fa-home fa-lg'></i>
-          <div className='title'>Dashboard</div>
-        </a>
-        <a href='#' className='mobs'>
-          <i className='fas fa-users fa-lg'></i>
           <div className='title'>Mobs</div>
         </a>
+        <button className='mobs' onClick={logout}>
+          <i className='fas fa-sign-out-alt fa-lg'></i>
+          <div className='title'>Logout</div>
+        </button>
       </div>
+      {/* <div className='logout'>
+        <p>Logout</p>
+        <i className='fas fa-sign-out-alt fa-lg'></i>
+      </div> */}
     </div>
   );
 };
 
-export default Sidebar;
+Sidebar.propTypes = {
+  logout: PropTypes.func.isRequired
+};
+
+const mapStateToProps = state => ({
+  auth: state.auth
+});
+
+export default connect(
+  mapStateToProps,
+  { logout }
+)(Sidebar);

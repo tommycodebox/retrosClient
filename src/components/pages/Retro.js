@@ -1,98 +1,118 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Sidebar from '../layout/Sidebar';
+import Header from '../layout/Header';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import { getOne, toggle } from '../../actions/retro';
+import loader from '../../assets/img/loader.gif';
+import Moment from 'react-moment';
+import uuid from 'uuid';
 
-const Retro = () => {
-  const menuHandler = e => {
-    const sidebar = document.querySelector('.Sidebar');
-    const main = document.querySelector('.Main');
+const Retro = ({ auth, match, getOne, toggle, retro: { loading, single } }) => {
+  useEffect(() => {
+    getOne(match.params.id);
+  }, []);
 
-    e.target.classList.toggle('active');
-    setTimeout(() => {
-      sidebar.classList.toggle('active');
-      main.classList.toggle('active');
-    }, 300);
+  const toggleTodo = todo => {
+    const retro = match.params.id;
+    toggle(retro, todo);
   };
 
   return (
-    <div class='Retro'>
+    <div className='Retro'>
       <Sidebar />
-      <div class='Main'>
-        <header>
-          <a href='#' class='create retro'>
-            <i class='fas fa-long-arrow-alt-left'></i>
-            <span></span>
-          </a>
-          <div class='title'>Retro</div>
-          <div class='profile'>
-            <div>
-              Tom F.
-              <span></span>
-            </div>
-            <i class='fas fa-id-badge fa-2x'></i>
+      <div className='Main'>
+        <Header title='Retro' page='Retro' auth={auth} />
+        <section className='board'>
+          <div className='latest card'>
+            <div className='title'>Main info</div>
+            {!loading && single ? (
+              <>
+                <div className='list'>
+                  <div className='item'>
+                    <div className='name'>{single.name}</div>
+                  </div>
+                  <div className='item'>
+                    <div className='name'>{single.type}</div>
+                  </div>
+                  <div className='item date'>
+                    <div className='name'>
+                      <Moment format='DD.MM.YY'>{single.date}</Moment>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <img width={40} src={loader} style={{ marginTop: 60 }} />
+            )}
           </div>
-          <div class='hamburger' onClick={menuHandler}>
-            <span class='line'></span>
-            <span class='line'></span>
-            <span class='line'></span>
-          </div>
-        </header>
-        <section class='board'>
-          <div class='latest card'>
-            <div class='title'>Main info</div>
-            <div class='list'>
-              <div class='item'>
-                <div class='name'>Friday retro</div>
+          <div className='todos card'>
+            <div className='title'>Todos</div>
+            {!loading && single ? (
+              <div className='list'>
+                {single.todos.map(todo => (
+                  <div
+                    className='item'
+                    key={todo._id}
+                    onClick={() => toggleTodo(todo._id)}
+                  >
+                    <div
+                      className='date'
+                      style={{ color: todo.isDone ? 'limegreen' : 'crimson' }}
+                    >
+                      {todo.isDone ? '✓' : '✗'}
+                    </div>
+                    <div className='name'>{todo.name}</div>
+                  </div>
+                ))}
               </div>
-              <div class='item'>
-                <div class='name'>Type</div>
-              </div>
-              <div class='item date'>
-                <div class='name'>20.04.19</div>
-              </div>
-            </div>
-          </div>
-          <div class='todos card'>
-            <div class='title'>Todos</div>
-            <div class='list'>
-              <div class='item'>
-                <div class='name'>Friday retro</div>
-              </div>
-              <div class='item'>
-                <div class='name'>Friday retro</div>
-              </div>
-              <div class='item'>
-                <div class='name'>Friday retro</div>
-              </div>
-            </div>
+            ) : (
+              <img
+                src={loader}
+                alt='loader'
+                width={40}
+                style={{ marginTop: 60 }}
+              />
+            )}
           </div>
 
-          <div class='awesomes card'>
-            <div class='title'>Awesomes</div>
-            <div class='list'>
-              <div class='item'>
-                <div class='name'>Friday retro</div>
+          <div className='awesomes card'>
+            <div className='title'>Awesomes</div>
+            {!loading && single ? (
+              <div className='list'>
+                {single.awesomes.map(awesome => (
+                  <div className='item' key={uuid.v4()}>
+                    <div className='name'>{awesome}</div>
+                  </div>
+                ))}
               </div>
-              <div class='item'>
-                <div class='name'>Friday retro</div>
-              </div>
-              <div class='item'>
-                <div class='name'>Friday retro</div>
-              </div>
-            </div>
+            ) : (
+              <img
+                src={loader}
+                alt='loader'
+                width={40}
+                style={{ marginTop: 60 }}
+              />
+            )}
           </div>
-          <div class='deltas card'>
-            <div class='title'>Deltas</div>
-            <div class='list'>
-              <div class='item'>
-                <div class='name'>Friday retro</div>
+          <div className='deltas card'>
+            <div className='title'>Deltas</div>
+            {!loading && single ? (
+              <div className='list'>
+                {single.deltas.map(delta => (
+                  <div className='item' key={uuid.v4()}>
+                    <div className='name'>{delta}</div>
+                  </div>
+                ))}
               </div>
-              <div class='item'>
-                <div class='name'>Friday retro</div>
-              </div>
-              <div class='item'>
-                <div class='name'>Friday retro</div>
-              </div>
-            </div>
+            ) : (
+              <img
+                src={loader}
+                alt='loader'
+                width={40}
+                style={{ marginTop: 60 }}
+              />
+            )}
           </div>
         </section>
       </div>
@@ -100,4 +120,19 @@ const Retro = () => {
   );
 };
 
-export default Retro;
+Retro.propTypes = {
+  auth: PropTypes.object.isRequired,
+  retros: PropTypes.object.isRequired,
+  getOne: PropTypes.func.isRequired,
+  toggle: PropTypes.func.isRequired
+};
+
+const mapStateToProps = state => ({
+  auth: state.auth,
+  retro: state.retro
+});
+
+export default connect(
+  mapStateToProps,
+  { getOne, toggle }
+)(Retro);
