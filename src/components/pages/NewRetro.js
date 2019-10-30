@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Redirect } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import Sidebar from '../layout/Sidebar';
 import Header from '../layout/Header';
 import PropTypes from 'prop-types';
 import { create } from '../../actions/retro';
 
-const NewRetro = ({ auth, create }) => {
+const NewRetro = ({ auth, create, history }) => {
   const [retro, setRetro] = useState({
     name: '',
     type: '',
@@ -90,7 +90,7 @@ const NewRetro = ({ auth, create }) => {
   };
 
   const submitRetro = () => {
-    create(retro);
+    create(retro, history);
     setRetro({
       name: '',
       type: '',
@@ -98,7 +98,6 @@ const NewRetro = ({ auth, create }) => {
       awesomes: [''],
       deltas: ['']
     });
-    return <Redirect to='/' />;
   };
 
   return (
@@ -239,4 +238,4 @@ const mapStateToProps = state => ({
 export default connect(
   mapStateToProps,
   { create }
-)(NewRetro);
+)(withRouter(NewRetro));

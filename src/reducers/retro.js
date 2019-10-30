@@ -57,6 +57,7 @@ export default function(state = initialState, action) {
         latest: null,
         loading: false
       };
+    case TOGGLE_FAILED:
     case CREATE_FAILED:
     default:
       return state;

@@ -13,10 +13,26 @@ import {
 } from './types';
 import { setAlert } from './alert';
 
-// Get all retros
+// Get all mob retros
 export const getAll = () => async dispatch => {
   try {
     const res = await axios.get('/retros');
+
+    dispatch({
+      type: GET_ALL,
+      payload: res.data
+    });
+  } catch (err) {
+    dispatch({
+      type: GET_ALL_FAILED
+    });
+  }
+};
+
+// Get all retros
+export const getAllRetros = () => async dispatch => {
+  try {
+    const res = await axios.get('/retros/all');
 
     dispatch({
       type: GET_ALL,
@@ -63,13 +79,10 @@ export const getOne = id => async dispatch => {
 
 // Create retro
 
-export const create = ({
-  name,
-  type,
-  todos,
-  awesomes,
-  deltas
-}) => async dispatch => {
+export const create = (
+  { name, type, todos, awesomes, deltas },
+  history
+) => async dispatch => {
   const config = {
     headers: {
       'Content-Type': 'application/json'
@@ -92,6 +105,7 @@ export const create = ({
       payload: res.data
     });
     dispatch(setAlert('Retro created', 'success'));
+    history.push('/');
   } catch (err) {
     const errors = err.response.data.errors;
 
@@ -114,7 +128,14 @@ export const toggle = (retro, todo) => async dispatch => {
       type: TOGGLE,
       payload: res.data
     });
-    dispatch(setAlert('Todo updated', 'success'));
+    dispatch(getAll());
+    const editedTodo = res.data.todos.find(t => t._id === todo);
+    dispatch(
+      setAlert(
+        `Todo marked as ${editedTodo.isDone ? 'done' : 'pending'}`,
+        'success'
+      )
+    );
   } catch (err) {
     dispatch({
       type: TOGGLE_FAILED

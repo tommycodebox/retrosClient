@@ -37,8 +37,10 @@ const Header = ({ title, page, auth: { loading, isAuth, user }, create }) => {
   return (
     <header>
       {page === 'Dashboard' && dashboardBtn}
+      {page === 'All' && dashboardBtn}
       {page === 'New' && newBtn}
       {page === 'Retro' && retroBtn}
+      {page === 'Mobs' && retroBtn}
       <div className='title'>{title}</div>
       <div className='profile'>
         <div>

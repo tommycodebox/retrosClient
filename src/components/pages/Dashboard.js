@@ -38,7 +38,7 @@ const Dashboard = ({
             <div className='title'>
               Latest Retro
               <Link
-                to={!loading && latest && '/retro/' + latest._id}
+                to={!loading && latest ? '/retro/' + latest._id : '/'}
                 className='more'
               >
                 >
@@ -68,7 +68,9 @@ const Dashboard = ({
               <div className='todos'>
                 <ul className='list'>
                   {!loading && latest ? (
-                    latest.todos.slice(0, 4).map(todo => <li>{todo.name}</li>)
+                    latest.todos
+                      .slice(0, 4)
+                      .map(todo => <li key={todo._id}>{todo.name}</li>)
                   ) : (
                     <li>
                       {latest ? (
@@ -93,7 +95,7 @@ const Dashboard = ({
             <div className='title'>Todos</div>
             <div className='list'>
               {!loading && all ? (
-                all.reverse().map(retro =>
+                all.map(retro =>
                   retro.todos.map(todo => (
                     <div
                       className='item'
@@ -120,9 +122,13 @@ const Dashboard = ({
             <div className='title'>Awesomes</div>
             <div className='list'>
               {!loading && all ? (
-                all.reverse().map(retro =>
+                all.map(retro =>
                   retro.awesomes.map(awesome => (
-                    <Link to={'/' + retro._id} className='item' key={uuid.v4()}>
+                    <Link
+                      to={'/retro/' + retro._id}
+                      className='item'
+                      key={uuid.v4()}
+                    >
                       <div className='date'>
                         <Moment format='DD.MM'>{retro.date}</Moment>
                       </div>
@@ -140,9 +146,13 @@ const Dashboard = ({
             <div className='title'>Deltas</div>
             <div className='list'>
               {!loading && all ? (
-                all.reverse().map(retro =>
+                all.map(retro =>
                   retro.deltas.map(delta => (
-                    <Link to={'/' + retro._id} className='item' key={uuid.v4()}>
+                    <Link
+                      to={'/retro/' + retro._id}
+                      className='item'
+                      key={uuid.v4()}
+                    >
                       <div className='date'>
                         <Moment format='DD.MM'>{retro.date}</Moment>
                       </div>

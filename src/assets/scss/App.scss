@@ -148,6 +148,7 @@ body {
             }
           }
         }
+
         .login {
           justify-self: right;
           left: -100%;
@@ -240,7 +241,9 @@ body {
   }
   .Dashboard,
   .New,
-  .Retro {
+  .Retro,
+  .AllRetros,
+  .Mobs {
     width: 100vw;
     height: 100vh;
     position: relative;
@@ -1073,6 +1076,17 @@ body {
                 }
               }
             }
+          }
+        }
+        .all-retros-card {
+          width: calc(100% - 40px);
+          height: calc(100% - 40px);
+
+          @media screen and (max-width: 650px) {
+            width: calc(100% - 80px);
+          }
+          @media screen and (max-width: 420px) {
+            width: calc(100% - 40px);
           }
         }
       }

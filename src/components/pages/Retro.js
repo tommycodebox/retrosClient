@@ -30,13 +30,14 @@ const Retro = ({ auth, match, getOne, toggle, retro: { loading, single } }) => {
               <>
                 <div className='list'>
                   <div className='item'>
-                    <div className='name'>{single.name}</div>
+                    <div className='name'>Title ∙ ∙ ∙ {single.name}</div>
                   </div>
                   <div className='item'>
-                    <div className='name'>{single.type}</div>
+                    <div className='name'>Type ∙ ∙ ∙ {single.type}</div>
                   </div>
                   <div className='item date'>
                     <div className='name'>
+                      Date ∙ ∙ ∙{' '}
                       <Moment format='DD.MM.YY'>{single.date}</Moment>
                     </div>
                   </div>

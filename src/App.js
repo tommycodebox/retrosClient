@@ -9,10 +9,13 @@ import PrivateRoute from './routing/PrivateRoute';
 import { Provider } from 'react-redux';
 import store from './store';
 
+// Components
 import Dashboard from './components/pages/Dashboard';
 import Welcome from './components/pages/Welcome';
 import NewRetro from './components/pages/NewRetro';
 import Retro from './components/pages/Retro';
+import AllRetros from './components/pages/AllRetros';
+import Mobs from './components/pages/Mobs';
 
 if (localStorage.token) {
   setAuthToken(localStorage.token);
@@ -32,6 +35,8 @@ const App = () => {
             <Route path='/welcome' component={Welcome} />
             <PrivateRoute path='/new' component={NewRetro} />
             <PrivateRoute path='/retro/:id' component={Retro} />
+            <PrivateRoute path='/all' component={AllRetros} />
+            <PrivateRoute path='/mobs' component={Mobs} />
           </Switch>
         </div>
       </Router>
