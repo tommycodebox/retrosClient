@@ -22,7 +22,7 @@ import { setAlert } from './alert';
 // Get all mob retros
 export const getAll = () => async dispatch => {
   try {
-    const res = await axios.get('/retros');
+    const res = await axios.get('https://retros-api.innergang.com/retros');
 
     dispatch({
       type: GET_ALL,
@@ -38,7 +38,7 @@ export const getAll = () => async dispatch => {
 // Get all retros
 export const getAllRetros = () => async dispatch => {
   try {
-    const res = await axios.get('/retros/all');
+    const res = await axios.get('https://retros-api.innergang.com/retros/all');
 
     dispatch({
       type: GET_ALL,
@@ -54,7 +54,9 @@ export const getAllRetros = () => async dispatch => {
 // Get latest retro
 export const getLatest = () => async dispatch => {
   try {
-    const res = await axios.get('/retros/latest');
+    const res = await axios.get(
+      'https://retros-api.innergang.com/retros/latest'
+    );
 
     dispatch({
       type: GET_LATEST,
@@ -70,7 +72,9 @@ export const getLatest = () => async dispatch => {
 // Get one retro
 export const getOne = id => async dispatch => {
   try {
-    const res = await axios.get('/retros/' + id);
+    const res = await axios.get(
+      'https://retros-api.innergang.com/retros/' + id
+    );
 
     dispatch({
       type: GET_ONE,
@@ -104,7 +108,11 @@ export const create = (
   });
 
   try {
-    const res = await axios.post('/retros', body, config);
+    const res = await axios.post(
+      'https://retros-api.innergang.com/retros',
+      body,
+      config
+    );
 
     dispatch({
       type: CREATE,
@@ -129,7 +137,9 @@ export const create = (
 
 export const toggle = (retro, todo) => async dispatch => {
   try {
-    const res = await axios.patch(`/retros/${retro}/todo/${todo}`);
+    const res = await axios.patch(
+      `https://retros-api.innergang.com/retros/${retro}/todo/${todo}`
+    );
 
     dispatch({
       type: TOGGLE,
