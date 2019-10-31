@@ -119,6 +119,16 @@ const Welcome = ({ register, login, auth: { isAuth } }) => {
     return <Redirect to='/' />;
   }
 
+  const mobs = [
+    'Web White Whales',
+    '2Pack',
+    'Fantastic4',
+    'TechCrackerz',
+    'Itchy',
+    'LTE4',
+    'Kamel()'
+  ];
+
   return (
     <div className='Home'>
       <div className='overlay'>
@@ -191,9 +201,11 @@ const Welcome = ({ register, login, auth: { isAuth } }) => {
                 <option disabled value=''>
                   Select your mob..
                 </option>
-                <option value='Web White Whales'>Web White Whales</option>
-                <option value='2Pack'>2Pack</option>
-                <option value='LTE4'>LTE4</option>
+                {mobs.map(mob => (
+                  <option key={mob} value={mob}>
+                    {mob}
+                  </option>
+                ))}
               </select>
               <button>Sign Up</button>
             </form>
