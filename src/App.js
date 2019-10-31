@@ -16,6 +16,7 @@ import NewRetro from './components/pages/NewRetro';
 import Retro from './components/pages/Retro';
 import AllRetros from './components/pages/AllRetros';
 import Mobs from './components/pages/Mobs';
+import Main from './components/pages/Main';
 
 if (localStorage.token) {
   setAuthToken(localStorage.token);
@@ -30,14 +31,7 @@ const App = () => {
     <Provider store={store}>
       <Router>
         <div className='App'>
-          <Switch>
-            <PrivateRoute exact path='/' component={Dashboard} />
-            <Route path='/welcome' component={Welcome} />
-            <PrivateRoute path='/new' component={NewRetro} />
-            <PrivateRoute path='/retro/:id' component={Retro} />
-            <PrivateRoute path='/all' component={AllRetros} />
-            <PrivateRoute path='/mobs' component={Mobs} />
-          </Switch>
+          <Main />
         </div>
       </Router>
     </Provider>
