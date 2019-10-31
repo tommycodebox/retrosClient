@@ -27,7 +27,7 @@ const AllRetros = ({ getAll, retro: { all, loading }, auth }) => {
         <Header title='All retros' page='All' auth={auth} />
         <section className='board'>
           <div className='card all-retros-card'>
-            <div className='title'>Awesomes</div>
+            <div className='title'>Retros</div>
             <div className='list'>
               {!loading && all ? (
                 all.map(retro => (

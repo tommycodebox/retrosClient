@@ -12,6 +12,8 @@ import {
   TOGGLE_FAILED,
   CHOOSE,
   CHOOSE_FAILED,
+  DELETE,
+  DELETE_FAILED,
   CONN,
   CONN_FAILED,
   START,
@@ -83,6 +85,24 @@ export const getOne = id => async dispatch => {
   } catch (err) {
     dispatch({
       type: GET_ONE_FAILED
+    });
+  }
+};
+
+// Delete retro
+export const deleteRetro = (id, history) => async dispatch => {
+  try {
+    await axios.delete('https://retros-api.innergang.com/retros/' + id);
+
+    dispatch({
+      type: DELETE,
+      payload: id
+    });
+    dispatch(setAlert('Retro deleted', 'success'));
+    history.push('/');
+  } catch (err) {
+    dispatch({
+      type: DELETE_FAILED
     });
   }
 };

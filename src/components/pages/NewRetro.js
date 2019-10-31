@@ -38,7 +38,7 @@ const NewRetro = ({
   const [socket, setSocket] = useState();
 
   useEffect(() => {
-    const io = openSocket('http://192.168.33.82:5000');
+    const io = openSocket('https://retros-api.innergang.com');
     setSocket(io);
 
     auth.user &&

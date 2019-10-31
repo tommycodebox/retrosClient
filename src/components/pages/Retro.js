@@ -3,12 +3,21 @@ import Sidebar from '../layout/Sidebar';
 import Header from '../layout/Header';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { getOne, toggle } from '../../actions/retro';
+import { getOne, toggle, deleteRetro } from '../../actions/retro';
 import loader from '../../assets/img/loader.gif';
 import Moment from 'react-moment';
 import uuid from 'uuid';
+import { withRouter } from 'react-router-dom';
 
-const Retro = ({ auth, match, getOne, toggle, retro: { loading, single } }) => {
+const Retro = ({
+  auth,
+  match,
+  getOne,
+  toggle,
+  deleteRetro,
+  retro: { loading, single },
+  history
+}) => {
   useEffect(() => {
     getOne(match.params.id);
   }, []);
@@ -35,11 +44,19 @@ const Retro = ({ auth, match, getOne, toggle, retro: { loading, single } }) => {
                   <div className='item'>
                     <div className='name'>Type ∙ ∙ ∙ {single.type}</div>
                   </div>
-                  <div className='item date'>
+                  <div className='item '>
                     <div className='name'>
                       Date ∙ ∙ ∙{' '}
                       <Moment format='DD.MM.YY'>{single.date}</Moment>
                     </div>
+                  </div>
+                  <div className='item date'>
+                    <button
+                      className='delete'
+                      onClick={() => deleteRetro(single._id, history)}
+                    >
+                      Delete retro
+                    </button>
                   </div>
                 </div>
               </>
@@ -125,6 +142,7 @@ Retro.propTypes = {
   auth: PropTypes.object.isRequired,
   retros: PropTypes.object.isRequired,
   getOne: PropTypes.func.isRequired,
+  deleteRetro: PropTypes.func.isRequired,
   toggle: PropTypes.func.isRequired
 };
 
@@ -135,5 +153,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { getOne, toggle }
-)(Retro);
+  { getOne, toggle, deleteRetro }
+)(withRouter(Retro));

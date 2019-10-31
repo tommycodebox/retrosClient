@@ -11,6 +11,8 @@ import {
   TOGGLE_FAILED,
   CHOOSE,
   CHOOSE_FAILED,
+  DELETE,
+  DELETE_FAILED,
   CONN,
   CONN_FAILED,
   START,
@@ -65,6 +67,12 @@ export default function(state = initialState, action) {
         latest: payload,
         loading: false
       };
+    case DELETE:
+      return {
+        ...state,
+        single: null,
+        all: state.all.filter(retro => retro.id !== payload)
+      };
     case GET_ALL_FAILED:
     case GET_ONE_FAILED:
       return {
@@ -116,6 +124,7 @@ export default function(state = initialState, action) {
           completed: false
         }
       };
+    case DELETE_FAILED:
     case TOGGLE_FAILED:
     case CREATE_FAILED:
     default:

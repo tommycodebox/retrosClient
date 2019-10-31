@@ -958,6 +958,38 @@ body {
               &.date::after {
                 display: none;
               }
+              &.date {
+                grid-template-columns: 1fr;
+                justify-items: center;
+              }
+              &.date:hover .arrow {
+                color: crimson;
+              }
+              &.date::before {
+                background: linear-gradient(
+                  to right,
+                  transparent,
+                  transparent,
+                  transparent,
+                  rgba(220, 20, 60, 0.1)
+                );
+              }
+              &.date .delete {
+                background: none;
+                cursor: pointer;
+                border: none;
+                outline: none;
+                z-index: 1;
+                text-align: center;
+                border-bottom: 1px solid crimson;
+                color: white;
+                padding: 5px 20px;
+                transition: 0.3s ease;
+
+                &:hover {
+                  padding: 5px 30px;
+                }
+              }
             }
           }
           .area {
