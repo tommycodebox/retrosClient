@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import Sidebar from '../layout/Sidebar';
 import Header from '../layout/Header';
 import PropTypes from 'prop-types';
 import { create } from '../../actions/retro';
+import openSocket from 'socket.io-client';
 
 const NewRetro = ({ auth, create, history }) => {
   const [retro, setRetro] = useState({
@@ -15,6 +16,27 @@ const NewRetro = ({ auth, create, history }) => {
     deltas: ['']
   });
 
+  const [socket, setSocket] = useState();
+
+  useEffect(() => {
+    const io = openSocket('http://192.168.33.82:5000');
+    setSocket(io);
+
+    auth.user &&
+      io.on(auth.user.mob, msg => {
+        setRetro(msg);
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(
+          input => input.value.length > 0 && input.classList.add('filled')
+        );
+      });
+  }, [auth.user]);
+
+  const send = msg => {
+    msg.mob = auth.user.mob;
+    socket && socket.emit('msg', msg);
+  };
+
   const todosTyper = (e, num) => {
     if (e.target.value.length > 0) {
       e.target.classList.add('filled');
@@ -24,6 +46,7 @@ const NewRetro = ({ auth, create, history }) => {
     const updated = [...retro.todos];
     updated[num] = e.target.value;
     setRetro({ ...retro, todos: updated });
+    send({ ...retro, todos: updated });
   };
   const awesomesTyper = (e, num) => {
     if (e.target.value.length > 0) {
@@ -34,6 +57,7 @@ const NewRetro = ({ auth, create, history }) => {
     const updated = [...retro.awesomes];
     updated[num] = e.target.value;
     setRetro({ ...retro, awesomes: updated });
+    send({ ...retro, awesomes: updated });
   };
   const deltasTyper = (e, num) => {
     if (e.target.value.length > 0) {
@@ -44,6 +68,7 @@ const NewRetro = ({ auth, create, history }) => {
     const updated = [...retro.deltas];
     updated[num] = e.target.value;
     setRetro({ ...retro, deltas: updated });
+    send({ ...retro, deltas: updated });
   };
 
   const addTodoInput = () => {
@@ -51,33 +76,39 @@ const NewRetro = ({ auth, create, history }) => {
     const updated = [...retro.todos];
     updated.push(newTodo);
     setRetro({ ...retro, todos: updated });
+    send({ ...retro, todos: updated });
   };
   const deleteTodoInput = num => {
     let updated = [...retro.todos];
     updated = updated.filter((_todo, index) => index !== num);
     setRetro({ ...retro, todos: updated });
+    send({ ...retro, todos: updated });
   };
   const addAwesomeInput = () => {
     const newAwesome = '';
     const updated = [...retro.awesomes];
     updated.push(newAwesome);
     setRetro({ ...retro, awesomes: updated });
+    send({ ...retro, awesomes: updated });
   };
   const deleteAwesomeInput = num => {
     let updated = [...retro.awesomes];
     updated = updated.filter((_awesome, index) => index !== num);
     setRetro({ ...retro, awesomes: updated });
+    send({ ...retro, awesomes: updated });
   };
   const addDeltaInput = () => {
     const newDelta = '';
     const updated = [...retro.deltas];
     updated.push(newDelta);
     setRetro({ ...retro, deltas: updated });
+    send({ ...retro, deltas: updated });
   };
   const deleteDeltaInput = num => {
     let updated = [...retro.deltas];
     updated = updated.filter((_delta, index) => index !== num);
     setRetro({ ...retro, deltas: updated });
+    send({ ...retro, deltas: updated });
   };
 
   const inputHandler = e => {
@@ -87,6 +118,7 @@ const NewRetro = ({ auth, create, history }) => {
       e.target.classList.remove('filled');
     }
     setRetro({ ...retro, [e.target.name]: e.target.value });
+    send({ ...retro, [e.target.name]: e.target.value });
   };
 
   const submitRetro = () => {
