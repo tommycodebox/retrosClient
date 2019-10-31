@@ -8,12 +8,26 @@ import {
   CREATE,
   CREATE_FAILED,
   TOGGLE,
-  TOGGLE_FAILED
+  TOGGLE_FAILED,
+  CHOOSE,
+  CHOOSE_FAILED,
+  CONN,
+  CONN_FAILED,
+  START,
+  RESET
 } from '../actions/types';
 
 const initialState = {
   single: null,
   all: null,
+  new: {
+    isChosen: false,
+    type: null,
+    people: null,
+    connected: 1,
+    start: false,
+    completed: false
+  },
   latest: null,
   loading: true
 };
@@ -28,8 +42,17 @@ export default function(state = initialState, action) {
         all: payload,
         loading: false
       };
-    case GET_ONE:
     case CREATE:
+      return {
+        ...state,
+        single: payload,
+        loading: false,
+        new: {
+          ...state.new,
+          completed: true
+        }
+      };
+    case GET_ONE:
     case TOGGLE:
       return {
         ...state,
@@ -56,6 +79,42 @@ export default function(state = initialState, action) {
         ...state,
         latest: null,
         loading: false
+      };
+    case CHOOSE:
+      return {
+        ...state,
+        new: {
+          ...state.new,
+          ...payload
+        }
+      };
+    case CONN:
+      return {
+        ...state,
+        new: {
+          ...state.new,
+          connected: state.new.connected + 1
+        }
+      };
+    case START:
+      return {
+        ...state,
+        new: {
+          ...state.new,
+          start: true
+        }
+      };
+    case RESET:
+      return {
+        ...state,
+        new: {
+          isChosen: false,
+          type: null,
+          people: null,
+          connected: 1,
+          start: false,
+          completed: false
+        }
       };
     case TOGGLE_FAILED:
     case CREATE_FAILED:

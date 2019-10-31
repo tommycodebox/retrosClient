@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { logout } from '../../actions/auth';
+import { resetNew } from '../../actions/retro';
 
-const Sidebar = ({ logout, auth: { isAuth, loading } }) => {
+const Sidebar = ({ logout, auth: { isAuth, loading }, resetNew }) => {
   // if (!loading && !isAuth) {
   //   return <Redirect to='/welcome' />;
   // }
+
+  useEffect(() => {
+    resetNew();
+  });
 
   return (
     <div className='Sidebar'>
@@ -58,7 +63,8 @@ const Sidebar = ({ logout, auth: { isAuth, loading } }) => {
 };
 
 Sidebar.propTypes = {
-  logout: PropTypes.func.isRequired
+  logout: PropTypes.func.isRequired,
+  resetNew: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
@@ -67,5 +73,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { logout }
+  { logout, resetNew }
 )(Sidebar);

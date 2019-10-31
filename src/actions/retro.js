@@ -9,7 +9,13 @@ import {
   CREATE,
   CREATE_FAILED,
   TOGGLE,
-  TOGGLE_FAILED
+  TOGGLE_FAILED,
+  CHOOSE,
+  CHOOSE_FAILED,
+  CONN,
+  CONN_FAILED,
+  START,
+  RESET
 } from './types';
 import { setAlert } from './alert';
 
@@ -105,6 +111,7 @@ export const create = (
       payload: res.data
     });
     dispatch(setAlert('Retro created', 'success'));
+    dispatch(resetNew());
     history.push('/');
   } catch (err) {
     const errors = err.response.data.errors;
@@ -141,4 +148,39 @@ export const toggle = (retro, todo) => async dispatch => {
       type: TOGGLE_FAILED
     });
   }
+};
+
+// Choose retro fill type
+export const chooseType = ({ type, people }) => dispatch => {
+  if (type === 'one') {
+    dispatch({
+      type: CHOOSE,
+      payload: { start: true, isChosen: true, type, people }
+    });
+  } else if (type === 'mob') {
+    dispatch({
+      type: CHOOSE,
+      payload: { isChosen: true, type, people }
+    });
+  } else {
+    dispatch({
+      type: CHOOSE_FAILED
+    });
+  }
+};
+export const updateConnected = () => dispatch => {
+  dispatch({
+    type: CONN
+  });
+};
+
+export const updateStart = () => dispatch => {
+  dispatch({
+    type: START
+  });
+};
+export const resetNew = () => dispatch => {
+  dispatch({
+    type: RESET
+  });
 };
