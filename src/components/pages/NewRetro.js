@@ -13,15 +13,17 @@ import {
 } from '../../actions/retro';
 import openSocket from 'socket.io-client';
 import { setAlert } from '../../actions/alert';
+import FieldsCard from '../partials/FieldsCard';
+import MainCard from '../partials/MainCard';
+import Modal from '../partials/Modal';
 
 const NewRetro = ({
   auth,
   setAlert,
-  newRetro: { isChosen, type, people, connected, start, completed },
+  newRetro: { isChosen, people, connected, start, completed },
   create,
   updateConnected,
   updateStart,
-  resetNew,
   chooseType,
   history
 }) => {
@@ -41,11 +43,10 @@ const NewRetro = ({
     const io = openSocket('https://retros-api.innergang.com');
     setSocket(io);
 
-    auth.user &&
+    if (auth.user) {
       io.on('connect', () => {
         io.emit('mob', { mob: auth.user.mob });
       });
-    auth.user &&
       io.on(auth.user.mob, msg => {
         setRetro(msg);
         const inputs = document.querySelectorAll('input');
@@ -53,6 +54,7 @@ const NewRetro = ({
           input => input.value.length > 0 && input.classList.add('filled')
         );
       });
+    }
 
     io.on('started', msg => {
       updateStart();
@@ -66,25 +68,24 @@ const NewRetro = ({
   }, [auth.user]);
 
   useEffect(() => {
-    auth.user &&
-      socket &&
+    if (auth.user && socket) {
       socket.on(auth.user.mob + '/mob', msg => {
         start && socket.emit('start', true);
         updater();
       });
-    auth.user &&
-      socket &&
       socket.on(auth.user.mob + '/completed', msg => {
         setAlert('Retro created', 'success');
         history.push('/');
       });
-    auth.user &&
-      completed &&
-      socket &&
-      socket.emit('completed', { mob: auth.user.mob });
+      if (completed) {
+        socket.emit('completed', { mob: auth.user.mob });
+      }
+    }
     return () => {
-      auth.user && socket && socket.off(auth.user.mob + '/mob');
-      auth.user && socket && socket.off(auth.user.mob + '/completed');
+      if (auth.user && socket) {
+        socket.off(auth.user.mob + '/mob');
+        socket.off(auth.user.mob + '/completed');
+      }
     };
   }, [auth.user, connected, socket, start, completed]);
 
@@ -102,78 +103,31 @@ const NewRetro = ({
     socket && socket.emit('msg', msg);
   };
 
-  const todosTyper = (e, num) => {
+  const typer = (e, num, type) => {
     if (e.target.value.length > 0) {
       e.target.classList.add('filled');
     } else {
       e.target.classList.remove('filled');
     }
-    const updated = [...retro.todos];
+    const updated = [...retro[type]];
     updated[num] = e.target.value;
-    setRetro({ ...retro, todos: updated });
-    send({ ...retro, todos: updated });
-  };
-  const awesomesTyper = (e, num) => {
-    if (e.target.value.length > 0) {
-      e.target.classList.add('filled');
-    } else {
-      e.target.classList.remove('filled');
-    }
-    const updated = [...retro.awesomes];
-    updated[num] = e.target.value;
-    setRetro({ ...retro, awesomes: updated });
-    send({ ...retro, awesomes: updated });
-  };
-  const deltasTyper = (e, num) => {
-    if (e.target.value.length > 0) {
-      e.target.classList.add('filled');
-    } else {
-      e.target.classList.remove('filled');
-    }
-    const updated = [...retro.deltas];
-    updated[num] = e.target.value;
-    setRetro({ ...retro, deltas: updated });
-    send({ ...retro, deltas: updated });
+    setRetro({ ...retro, [type]: updated });
+    send({ ...retro, [type]: updated });
   };
 
-  const addTodoInput = () => {
-    const newTodo = '';
-    const updated = [...retro.todos];
-    updated.push(newTodo);
-    setRetro({ ...retro, todos: updated });
-    send({ ...retro, todos: updated });
+  const addField = type => {
+    const newField = '';
+    const updated = [...retro[type]];
+    updated.push(newField);
+    setRetro({ ...retro, [type]: updated });
+    send({ ...retro, [type]: updated });
   };
-  const deleteTodoInput = num => {
-    let updated = [...retro.todos];
-    updated = updated.filter((_todo, index) => index !== num);
-    setRetro({ ...retro, todos: updated });
-    send({ ...retro, todos: updated });
-  };
-  const addAwesomeInput = () => {
-    const newAwesome = '';
-    const updated = [...retro.awesomes];
-    updated.push(newAwesome);
-    setRetro({ ...retro, awesomes: updated });
-    send({ ...retro, awesomes: updated });
-  };
-  const deleteAwesomeInput = num => {
-    let updated = [...retro.awesomes];
-    updated = updated.filter((_awesome, index) => index !== num);
-    setRetro({ ...retro, awesomes: updated });
-    send({ ...retro, awesomes: updated });
-  };
-  const addDeltaInput = () => {
-    const newDelta = '';
-    const updated = [...retro.deltas];
-    updated.push(newDelta);
-    setRetro({ ...retro, deltas: updated });
-    send({ ...retro, deltas: updated });
-  };
-  const deleteDeltaInput = num => {
-    let updated = [...retro.deltas];
-    updated = updated.filter((_delta, index) => index !== num);
-    setRetro({ ...retro, deltas: updated });
-    send({ ...retro, deltas: updated });
+
+  const deleteField = (type, num) => {
+    let updated = [...retro[type]];
+    updated = updated.filter((_item, index) => index !== num);
+    setRetro({ ...retro, [type]: updated });
+    send({ ...retro, [type]: updated });
   };
 
   const inputHandler = e => {
@@ -211,162 +165,51 @@ const NewRetro = ({
     <div className='New'>
       {/* Modal */}
       {!start && (
-        <div className='modal-wrapper'>
-          <div className='overlay'>
-            <div className='Modal'>
-              <div className='title'>Create new retro</div>
-              <div className='choose'>Choose option..</div>
-              {isChosen && (
-                <div className='connects'>
-                  connected: {connected} / {people}
-                </div>
-              )}
-              <div className='btns'>
-                <button onClick={() => choose({ type: 'one', people: 1 })}>
-                  On 1 computer
-                </button>
-                <button className='multiple-btn' onClick={setupMultiple}>
-                  On multiple computers
-                </button>
-                <div className='multiple'>
-                  <input
-                    type='number'
-                    min='3'
-                    max='5'
-                    value={peopleCount}
-                    onChange={peopleTyper}
-                  />
-                  <button
-                    onClick={() =>
-                      choose({ type: 'mob', people: Number(peopleCount) })
-                    }
-                  >
-                    Start
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Modal
+          isChosen={isChosen}
+          connected={connected}
+          people={people}
+          choose={choose}
+          setupMultiple={setupMultiple}
+          peopleCount={peopleCount}
+          peopleTyper={peopleTyper}
+        />
       )}
       <Sidebar />
       <div className='Main'>
         <Header title='New retro' page='New' auth={auth} create={submitRetro} />
         <section className='board'>
-          <div className='card'>
-            <div className='title'>Main info</div>
-
-            <div className='input-area'>
-              <div className='input-group'>
-                <input
-                  type='text'
-                  name='name'
-                  id='name'
-                  onChange={inputHandler}
-                  value={retro.name}
-                />
-                <label htmlFor='name'>Name</label>
-              </div>
-              <div className='input-group'>
-                <input
-                  type='text'
-                  name='type'
-                  id='type'
-                  onChange={inputHandler}
-                  value={retro.type}
-                />
-                <label htmlFor='type'>Type</label>
-              </div>
-            </div>
-          </div>
-          <div className='todos card'>
-            <div className='title'>
-              Todos
-              <a href='#' className='more' onClick={addTodoInput}>
-                +
-              </a>
-            </div>
-            <div className='input-area todos-area'>
-              {retro.todos.map((_todo, index) => (
-                <div key={'todo-' + index} className='input-group'>
-                  <input
-                    type='text'
-                    name='todo'
-                    id='todo'
-                    value={retro.todos[index]}
-                    onChange={e => todosTyper(e, index)}
-                  />
-                  <label htmlFor='todo'>Todo</label>
-                  <a
-                    href='#'
-                    className='btn remove-input'
-                    onClick={() => deleteTodoInput(index)}
-                  >
-                    -
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className='awesomes card'>
-            <div className='title'>
-              Awesomes
-              <a href='#' className='more' onClick={addAwesomeInput}>
-                +
-              </a>
-            </div>
-            <div className='input-area awesomes-area'>
-              {retro.awesomes.map((_awesome, index) => (
-                <div key={'awesome-' + index} className='input-group'>
-                  <input
-                    type='text'
-                    name='awesome'
-                    id='awesome'
-                    value={retro.awesomes[index]}
-                    onChange={e => awesomesTyper(e, index)}
-                  />
-                  <label htmlFor='awesome'>Awesome</label>
-                  <a
-                    href='#'
-                    className='btn remove-input'
-                    onClick={() => deleteAwesomeInput(index)}
-                  >
-                    -
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className='deltas card'>
-            <div className='title'>
-              Deltas
-              <a href='#' className='more' onClick={addDeltaInput}>
-                +
-              </a>
-            </div>
-            <div className='input-area deltas-area'>
-              {retro.deltas.map((_delta, index) => (
-                <div key={'delta-' + index} className='input-group'>
-                  <input
-                    type='text'
-                    name='delta'
-                    id='delta'
-                    value={retro.deltas[index]}
-                    onChange={e => deltasTyper(e, index)}
-                  />
-                  <label htmlFor='delta'>Delta</label>
-                  <a
-                    href='#'
-                    className='btn remove-input'
-                    onClick={() => deleteDeltaInput(index)}
-                  >
-                    -
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
+          <MainCard retro={retro} inputHandler={inputHandler} />
+          <FieldsCard
+            title='Todos'
+            label='Todo'
+            type='todos'
+            typ='todo'
+            retro={retro}
+            addField={addField}
+            deleteField={deleteField}
+            typer={typer}
+          />
+          <FieldsCard
+            title='Awesomes'
+            label='Awesome'
+            type='awesomes'
+            typ='awesome'
+            retro={retro}
+            addField={addField}
+            deleteField={deleteField}
+            typer={typer}
+          />
+          <FieldsCard
+            title='Deltas'
+            label='Delta'
+            type='deltas'
+            typ='delta'
+            retro={retro}
+            addField={addField}
+            deleteField={deleteField}
+            typer={typer}
+          />
         </section>
       </div>
     </div>
@@ -389,7 +232,11 @@ const mapStateToProps = state => ({
   newRetro: state.retro.new
 });
 
-export default connect(
-  mapStateToProps,
-  { create, chooseType, updateConnected, updateStart, resetNew, setAlert }
-)(withRouter(NewRetro));
+export default connect(mapStateToProps, {
+  create,
+  chooseType,
+  updateConnected,
+  updateStart,
+  resetNew,
+  setAlert
+})(withRouter(NewRetro));
